@@ -1,0 +1,49 @@
+﻿@page "/login"
+@inject NavigationManager navigationManager
+@inject CustomStateProvider authStateProvider
+
+<EditForm class="mx-auto text-center w-50" OnValidSubmit="OnSubmit" Model="loginRequest">
+    <DataAnnotationsValidator />
+
+    <h1 class="h3 mb-3 font-weight-normal">Вход</h1>
+
+    <label for="inputUsername" class="visually-hidden">User Name</label>
+    <InputText id="inputUsername" class="my-3 form-control" @bind-Value="loginRequest.UserName" autofocus placeholder="Логин" />
+    <ValidationMessage For="@(() => loginRequest.UserName)" />
+
+    <label for="inputPassword" class="visually-hidden">Password</label>
+    <InputText type="password" id="inputPassword" class="my-3 form-control" placeholder="Пароль" @bind-Value="loginRequest.Password" />
+    <ValidationMessage For="@(() => loginRequest.Password)" />
+
+    <div class="form-check my-3 text-start">
+        <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@loginRequest.RememberMe" />
+        <label class="form-check-label" for="inputRememberMe">Запомнить</label>
+    </div>
+
+    <button class="my-3 btn btn-primary btn-block" type="submit">Войти</button>
+    <label class="text-danger">@error</label>
+
+    <NavLink href="register">
+        <h6 class="my-3 font-weight-normal text-center">Создать аккаунт</h6>
+    </NavLink>
+</EditForm>
+
+@code{
+    LoginRequest loginRequest { get; set; } = new LoginRequest();
+    string error { get; set; }
+
+    async Task OnSubmit()
+    {
+        error = null;
+        try
+        {
+            await authStateProvider.Login(loginRequest);
+            navigationManager.NavigateTo("");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}
+

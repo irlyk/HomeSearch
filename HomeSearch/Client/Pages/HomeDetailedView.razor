@@ -1,0 +1,137 @@
+﻿@page "/HomeDetailed/{id}"
+
+<SuccessNotification @ref="_notification" />
+<ErrorNotification @ref="_errorNotification" IsNavigateble="false" />
+
+@if (Home != null)
+{
+    <div class="container d-grid gap-3 mb-5">
+
+        <div class="card card-body gap-3">
+            @*Верхняя строка с названием и рейтингом*@
+            <div class="row align-items-center">
+                <div class="col-md-auto">
+                    <h1 class="m-0">@Home.Name</h1>
+                </div>
+                @*<div class="col-md-auto">
+                    <span class="badge bg-warning text-dark">@Home.Rating</span>
+                </div>*@
+            </div>
+
+            @*Строка с тегами*@
+            <div class="row row-cols-auto">
+                @foreach (var tag in Home.Tags)
+                {
+                    <div class="col-md-auto">
+                        <span class="badge rounded-pill bg-info text-dark me-1">@tag</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @*Строка с скринами*@
+        <div class="row row-cols-auto justify-content-start">
+            @foreach (var picture in Home.Screens)
+            {
+                <div class="col-md-auto">
+                    <img class="img-fix-size border border-1 rounded" src="data:@picture.ContentType;base64,@picture.Base64data" />
+                </div>
+            }
+        </div>
+
+        @*Информация об отеле*@
+        <div class="card card-body gap-3">
+            <h3>Об отеле</h3>
+            <div class="row">
+                <p class="small">Цена за ночь: <strong>@Home.Price ₽</strong></p>
+            </div>
+            <div class="row">
+                <p class="col">@Home.Details</p>
+            </div>
+        </div>
+
+        @*Бронирование*@
+        <AuthorizeView Context="authContext">
+            <Authorized>
+                <EditForm Model="MyReserve" OnSubmit="Reserve" class="card card-body bg-light d-grid gap-3">
+                    <DataAnnotationsValidator />
+                    <h3>Забронировать</h3>
+                    <div class="form-group row">
+                        <label for="dateStart" class="col-md-2 col-form-label">Дата заезда:</label>
+                        <div class="col-md-10">
+                            <InputDate id="dateStart" class="form-control" @bind-Value="MyReserve.DateStart" />
+                            <ValidationMessage For="@(() => MyReserve.DateStart)" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="dateEnd" class="col-md-2 col-form-label">Дата отъезда:</label>
+                        <div class="col-md-10">
+                            <InputDate id="dateStart" class="form-control" @bind-Value="MyReserve.DateEnd" />
+                            <ValidationMessage For="@(() => MyReserve.DateEnd)" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 text-right">
+                            <button type="submit" class="btn btn-success">Забронировать</button>
+                        </div>
+                    </div>
+                </EditForm>
+            </Authorized>
+        </AuthorizeView>
+    </div>
+}
+else
+{
+    <div class="spinner-border text-dark" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+
+@code {
+    private SuccessNotification _notification;
+    private ErrorNotification _errorNotification;
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    [Inject]
+    IHomeHttpRepository HomeRepo { get; set; }
+
+    [Inject]
+    CustomStateProvider authStateProvider { get; set; }
+
+    HomeDetailed Home { get; set; }
+
+    private Reserve MyReserve { get; set; } = new Reserve();
+
+    protected override async void OnParametersSet()
+    {
+        if (Id != null)
+        {
+            Home = await HomeRepo.GetHome(Id);
+            StateHasChanged();
+        }
+    }
+
+    private async void Reserve()
+    {
+        try
+        {
+            var state = await authStateProvider.GetAuthenticationStateAsync();
+            if (state.User.Identity.IsAuthenticated)
+            {
+                MyReserve.HomeId = Home.Id;
+                await HomeRepo.ReserveHome(MyReserve);
+            }
+            _notification.Show("Бронь добавлена");
+        }
+        catch (Exception ex)
+        {
+            var error = "Ошибка при бронировании:\n";
+            error += ex.Message;
+            _errorNotification.Show(error);
+        }
+    }
+}

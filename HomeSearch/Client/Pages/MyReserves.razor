@@ -1,0 +1,69 @@
+﻿@page "/MyReserves"
+
+<AuthorizeView>
+    <Authorized>
+        <h3 class="mb-5">Мои брони</h3>
+        @if (!Isloading)
+        {
+            <div class="container">
+                <div class="row gap-3">
+                    @if (reserves != null && reserves.Count() >0)
+                    {
+                        @foreach (var reserve in reserves)
+                        {
+                            <div class="card shadow-sm col-md-auto" onclick="@(() => OpenHotel(reserve.HomeId))">
+                                <div class="card-body">
+                                    <h5 class="card-title">@reserve.HotelName</h5>
+                                    <p>Дата заезда: @reserve.DateStart.ToShortDateString()</p>
+                                    <p>Дата отъезда: @reserve.DateEnd.ToShortDateString()</p>
+                                    <a href="/HomeDetailed/@reserve.HomeId" class="card-link">Открыть отель</a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>Брони отсутсвуют</p>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="spinner-border text-dark" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        }
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    bool Isloading = true;
+    List<Reserve> reserves = new List<Reserve>();
+
+    [Inject]
+    NavigationManager Navigation { get; set; }
+
+    [Inject]
+    CustomStateProvider authStateProvider { get; set; }
+
+    [Inject]
+    IHomeHttpRepository HomeRepo { get; set; }
+
+    private void OpenHotel(string id)
+    {
+        Navigation.NavigateTo($"/HomeDetailed/{id}");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await authStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity.IsAuthenticated)
+        {
+            reserves = await HomeRepo.GetReserves();
+        }
+        Isloading = false;
+    }
+
+}
+

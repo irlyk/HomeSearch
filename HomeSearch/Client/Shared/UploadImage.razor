@@ -1,0 +1,52 @@
+﻿
+<InputFile class="form-control" multiple="@IsMultiple" OnChange="OnChange" accept="image/png, image/jpeg, image/gif" id="@Id" />
+
+@if (ShowImages)
+{
+    <div class="row my-3 gap-3">
+
+        @foreach (var item in FilesBase64)
+        {
+            <div class="col">
+                <img class="img-fix-size border border-1 rounded" src="data:@item.ContentType;base64,@item.Base64data" />
+                <button type="button" class="btn-close" onclick="@(() => DeleteImage(item))" />
+            </div>
+        }
+
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool ShowImages { get; set; } = false;
+
+    [Parameter]
+    public bool IsMultiple { get; set; } = false;
+
+    [Parameter]
+    public string Id { get; set; } = "inputFile";
+
+    public List<ImageFile> FilesBase64 { get; set; } = new List<ImageFile>();
+
+    async Task OnChange(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles();
+        foreach (var file in files)
+        {
+            var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480);
+            var buf = new byte[resizedFile.Size];
+            using (var stream = resizedFile.OpenReadStream())
+            {
+                await stream.ReadAsync(buf);
+            }
+            FilesBase64.Add(new ImageFile { Base64data = Convert.ToBase64String(buf), ContentType = file.ContentType, FileName = file.Name });
+        }
+    }
+
+    private void DeleteImage(ImageFile file)
+    {
+        var index = FilesBase64.IndexOf(file);
+        FilesBase64.RemoveAt(index);
+        StateHasChanged();
+    }
+}

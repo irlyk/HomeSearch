@@ -1,0 +1,108 @@
+﻿@page "/HomeCreation"
+@inject NavigationManager navigationManager
+
+
+<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="homeDetailed">
+
+    <h1 class="h3 mb-3 font-weight-normal">Создание предложения</h1>
+
+    <DataAnnotationsValidator />
+
+    <div class="my-3">
+        <label for="homeName" class="form-label">Название отеля</label>
+        <InputText id="homeName" class="form-control" @bind-Value="homeDetailed.Name" autofocus />
+        <ValidationMessage For="@(() => homeDetailed.Name)" />
+    </div>
+
+    <div>
+        <label for="description" class="form-label mt-3">Описание</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="homeDetailed.Details" />
+        <ValidationMessage For="@(() => homeDetailed.Details)" />
+    </div>
+
+    <div class="my-3">
+        <label class="form-label">Адрес</label>
+        <div class="border p-3" onclick="">
+            <label for="City" class="form-label">Город</label>
+            <InputText id="City" class="form-control" @bind-Value="homeDetailed.HomeAddress.City" />
+            <ValidationMessage For="@(() => homeDetailed.HomeAddress.City)" />
+
+            <label for="Street" class="form-label">Улица</label>
+            <InputText id="Street" class="form-control" @bind-Value="homeDetailed.HomeAddress.Street" />
+            <ValidationMessage For="@(() => homeDetailed.HomeAddress.Street)" />
+
+            <label for="Home" class="form-label">Номер дома</label>
+            <InputText id="Home" class="form-control" @bind-Value="homeDetailed.HomeAddress.Home" />
+            <ValidationMessage For="@(() => homeDetailed.HomeAddress.Home)" />
+        </div>
+    </div>
+
+    <div class="my-3">
+        <label for="uploadedImages" class="form-label">Добавить картинки</label>
+        <UploadImage IsMultiple="true" Id="uploadedImages" @ref="uploadImages" ShowImages="true" />
+    </div>
+
+    <div class="my-3">
+        <label for="defaultImage" class="form-label">Добавить превью картинку</label>
+        <UploadImage Id="defaultImage" @ref="uploadImage" ShowImages="true" />
+    </div>
+
+    <div class="my-3">
+        <label for="button-addon2" class="form-label">Добавить теги</label>
+        <div class="input-group mb-3">
+            <InputText id="tag" class="form-control" placeholder="Введите тег" aria-label="tag" aria-describedby="button-addon2" @bind-Value="tag" />
+            <button class="btn btn-outline-secondary" @onclick="TagInput" type="button" id="button-addon2">Добавить</button>
+        </div>
+        <div>
+            @foreach (var singleTag in Tags)
+            {
+                <span class="badge rounded-pill bg-info text-dark me-1">@singleTag</span>
+            }
+        </div>
+    </div>
+
+    <button class="btn btn-outline-success btn-block my-3" type="submit">Создать</button>
+    <label class="text-danger">@error</label>
+</EditForm>
+
+@code {
+    [Inject]
+    IHomeHttpRepository HomeRepo { get; set; }
+
+    UploadImage uploadImages;
+    UploadImage uploadImage;
+    string tag;
+
+    List<string> Tags { get; set; } = new List<string>();
+    HomeDetailed homeDetailed { get; set; } = new HomeDetailed();
+
+    string error { get; set; }
+
+    void TagInput()
+    {
+        if (!Tags.Contains(tag))
+        {
+            Tags.Add(tag);
+            tag = "";
+        }
+    }
+
+    async Task OnSubmit()
+    {
+        error = null;
+        try
+        {
+            homeDetailed.Screens = uploadImages.FilesBase64;
+            homeDetailed.DefaultScreen = uploadImage.FilesBase64.FirstOrDefault();
+            homeDetailed.Tags = Tags;
+
+            await HomeRepo.CreateHome(homeDetailed);
+            navigationManager.NavigateTo("");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}
+

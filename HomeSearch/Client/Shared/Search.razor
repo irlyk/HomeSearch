@@ -1,0 +1,26 @@
+﻿<section style="margin-bottom: 10px">
+    <input type="text" class="form-control" placeholder="Поиск отеля по названию"
+           @bind-value="@SearchTerm" @bind-value:event="oninput" @onkeyup="SearchChanged" />
+</section>
+
+@code {
+    private Timer _timer;
+
+    public string SearchTerm { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSearchChanged { get; set; }
+
+    private void SearchChanged()
+    {
+        if (_timer != null)
+            _timer.Dispose();
+        _timer = new Timer(OnTimerElapsed, null, 500, 0);
+    }
+    private void OnTimerElapsed(object sender)
+    {
+        OnSearchChanged.InvokeAsync(SearchTerm);
+        _timer.Dispose();
+    }
+}
+

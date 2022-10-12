@@ -1,0 +1,11 @@
+﻿@page "/"
+<AuthorizeView>
+    <Authorized>
+        <PageTitle>Index</PageTitle>
+        <h1>Привет @context.User.Identity.Name !!</h1>
+        <p>Добро пожаловать в приложение поиска отелей</p>
+    </Authorized>
+    <Authorizing>
+        <h1>Loading ...</h1>
+    </Authorizing>
+</AuthorizeView>

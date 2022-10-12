@@ -1,0 +1,151 @@
+﻿@page "/HomeCreationNew"
+
+<h2>Создать отель</h2>
+
+<SuccessNotification @ref="_notification" SuccessMessage="Новый отель успешно создан!"/>
+<ErrorNotification @ref="_errorNotification" IsNavigateble="false"/>
+
+<EditForm Model="_home" OnSubmit="Create" class="card card-body bg-light mt-5 d-grid gap-3">
+    <DataAnnotationsValidator />
+    <div class="form-group row">
+        <label for="name" class="col-md-2 col-form-label">Название:</label>
+        <div class="col-md-10">
+            <InputText id="name" class="form-control" @bind-Value="_home.Name" />
+            <ValidationMessage For="@(() => _home.Name)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="description" class="col-md-2 col-form-label">Описание:</label>
+        <div class="col-md-10">
+            <InputTextArea id="description" class="form-control" @bind-Value="_home.Details" />
+            <ValidationMessage For="@(() => _home.Details)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="City" class="col-md-2 col-form-label">Город:</label>
+        <div class="col-md-10">
+            <InputText id="City" class="form-control" @bind-Value="_home.HomeAddress.City" />
+            <ValidationMessage For="@(() => _home.HomeAddress.City)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="Street" class="col-md-2 col-form-label">Улица:</label>
+        <div class="col-md-10">
+            <InputText id="Street" class="form-control" @bind-Value="_home.HomeAddress.Street" />
+            <ValidationMessage For="@(() => _home.HomeAddress.Street)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="Home" class="col-md-2 col-form-label">Номер дома:</label>
+        <div class="col-md-10">
+            <InputText id="Home" class="form-control" @bind-Value="_home.HomeAddress.Home" />
+            <ValidationMessage For="@(() => _home.HomeAddress.Home)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="Home" class="col-md-2 col-form-label">Цена:</label>
+        <div class="col-md-10">
+            <InputNumber id="Home" class="form-control" @bind-Value="_home.Price" />
+            <ValidationMessage For="@(() => _home.Price)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="uploadedImages" class="col-md-2 col-form-label">Добавить картинки</label>
+        <div class="col-md-10">
+            <UploadImage IsMultiple="true" Id="uploadedImages" @ref="uploadImages" ShowImages="true" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="defaultImage" class="col-md-2 col-form-label">Добавить превью картинку</label>
+        <div class="col-md-10">
+            <UploadImage Id="defaultImage" @ref="uploadImage" ShowImages="true" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="button-add-tag" class="col-md-2 col-form-label">Добавить теги</label>
+        <div class="col-md-10">
+            <div class="input-group">
+                <InputText id="tag" class="form-control" placeholder="Введите тег" aria-label="tag" aria-describedby="button-add-tag" @bind-Value="tag" />
+                <button class="btn btn-outline-secondary" @onclick="TagInput" type="button" id="button-add-tag">Добавить</button>
+            </div>
+        </div>
+
+    </div>
+    <div class="row align-items-start">
+        @foreach (var singleTag in Tags)
+        {
+            <div class="col-auto">
+                <span class="badge rounded-pill bg-info text-dark me-1" onclick="@(() => DeleteTag(singleTag))">
+                    @singleTag &times;
+                </span>
+            </div>
+
+        }
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <button type="submit" class="btn btn-success">Создать</button>
+        </div>
+    </div>
+    <label class="text-danger">@error</label>
+</EditForm>
+
+@code {
+    private UploadImage uploadImages;
+    private UploadImage uploadImage;
+    private string error { get; set; }
+    private string tag { get; set; }
+    private List<string> Tags { get; set; } = new List<string>();
+    private HomeDetailed _home = new HomeDetailed();
+    private SuccessNotification _notification;
+    private ErrorNotification _errorNotification;
+
+    [Inject]
+    public IHomeHttpRepository HomeRepo { get; set; }
+
+    private async Task Create()
+    {
+        error = null;
+        try
+        {
+            _home.Screens = uploadImages.FilesBase64;
+            _home.DefaultScreen = uploadImage.FilesBase64.FirstOrDefault();
+            _home.Tags = Tags;
+
+            await HomeRepo.CreateHome(_home);
+            _notification.Show();
+        }
+        catch (Exception ex)
+        {
+            error = "Ошибка при создании отеля:\n";
+            error += ex.Message;
+            _errorNotification.Show(error);
+        }
+    }
+
+    void TagInput()
+    {
+        if (!Tags.Contains(tag))
+        {
+            Tags.Add(tag);
+            tag = "";
+        }
+    }
+
+    private void DeleteTag(string tag)
+    {
+        var index = Tags.IndexOf(tag);
+        Tags.RemoveAt(index);
+        StateHasChanged();
+    }
+}
+

@@ -1,0 +1,64 @@
+﻿@page "/HomeSearch"
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <Search OnSearchChanged="SearchChanged" />
+        </div>
+        <div class="col-md-5">
+            <SortHomes OnSortChanged="SortChanged" />
+        </div>
+    </div>
+    <HomesTable Homes="HomeList"></HomesTable>
+    <div class="row">
+        <div class="col">
+            <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage" />
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private List<HomeSmall> HomeList { get; set; } = new List<HomeSmall>();
+
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    private HomeParameters _homeParameters = new HomeParameters();
+
+    [Inject]
+    public IHomeHttpRepository HomeRepo { get; set; }
+
+    private async Task SearchChanged(string searchTerm)
+    {
+        Console.WriteLine(searchTerm);
+        _homeParameters.PageNumber = 1;
+        _homeParameters.SearchTerm = searchTerm;
+        await GetHomes();
+    }
+
+    private async Task SortChanged(string orderBy)
+    {
+        Console.WriteLine(orderBy);
+        _homeParameters.OrderBy = orderBy;
+        await GetHomes();
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetHomes();
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        _homeParameters.PageNumber = page;
+        await GetHomes();
+    }
+
+    private async Task GetHomes()
+    {
+        var pagingResponse = await HomeRepo.GetHomes(_homeParameters);
+        HomeList = pagingResponse.Items;
+        MetaData = pagingResponse.MetaData;
+    }
+}
+

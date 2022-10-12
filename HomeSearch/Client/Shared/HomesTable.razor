@@ -1,0 +1,46 @@
+﻿<div class="container">
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        @if (Homes.Count > 0)
+        {
+            @foreach (var home in Homes)
+            {
+                <div class="col">
+                    <div class="card shadow-sm" onclick="@(() => OpenHotel(home.Id))">
+                        <img src="data:@home.DefaultScreen.ContentType;base64,@home.DefaultScreen.Base64data"
+                             class="card-img-top" alt="превью">
+                        <div class="card-body">
+                            <h5 class="card-title">@home.Name</h5>
+                            <div class="mb-2">
+                                @foreach (var tag in home.Tags)
+                                {
+                                    <span class="badge rounded-pill bg-info text-dark me-2">@tag</span>
+                                }
+                            </div>
+                            <div><strong>@home.Price ₽</strong></div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="spinner-border text-dark" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        }
+
+    </div>
+</div>
+@code {
+    [Inject]
+    public NavigationManager Navigation { get; set; }
+
+    private void OpenHotel(string id)
+    {
+        Navigation.NavigateTo($"/HomeDetailed/{id}");
+    }
+
+    [Parameter]
+    public List<HomeSmall> Homes { get; set; }
+}
+

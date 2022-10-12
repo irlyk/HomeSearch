@@ -1,0 +1,41 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject CustomStateProvider authStateProvider
+@inject NavigationManager navigationManager
+
+<div class="top-row">
+    <AuthorizeView>
+        <Authorized>
+            <button type="button" class="btn btn-link ml-md-auto" @onclick="LogoutClick">
+                Logout
+            </button>
+        </Authorized>
+        <NotAuthorized>
+            <button type="button" class="btn btn-link ml-md-auto" @onclick="LoginClick">
+                Login
+            </button>
+            <button type="button" class="btn btn-link ml-md-auto" @onclick="RegisterClicked">
+                Register
+            </button>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+@code{
+    async Task LogoutClick()
+    {
+        await authStateProvider.Logout();
+    }
+
+    void LoginClick()
+    {
+        navigationManager.NavigateTo("/login");
+    }
+
+    void RegisterClicked()
+    {
+        navigationManager.NavigateTo("/register");
+    }
+}
+
