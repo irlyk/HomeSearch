@@ -30,15 +30,15 @@
 
 @code{
     LoginRequest loginRequest { get; set; } = new LoginRequest();
-    string error { get; set; }
+    string error { get; set; } = "";
 
     async Task OnSubmit()
     {
-        error = null;
+        error = "";
         try
         {
             await authStateProvider.Login(loginRequest);
-            navigationManager.NavigateTo("");
+            navigationManager.NavigateTo("/");
         }
         catch (Exception ex)
         {

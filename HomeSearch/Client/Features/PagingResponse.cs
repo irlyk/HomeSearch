@@ -1,5 +1,4 @@
-﻿using System;
-using HomeSearch.Shared.Models;
+﻿using HomeSearch.Shared.Models;
 
 namespace HomeSearch.Client.Features
 {

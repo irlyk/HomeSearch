@@ -32,15 +32,15 @@
 
 @functions{
     RegisterRequest registerRequest { get; set; } = new RegisterRequest();
-    string error { get; set; }
+    string error { get; set; } = "";
 
     async Task OnSubmit()
     {
-        error = null;
+        error = "";
         try
         {
             await authStateProvider.Register(registerRequest);
-            navigationManager.NavigateTo("");
+            navigationManager.NavigateTo("/");
         }
         catch (Exception ex)
         {

@@ -69,18 +69,19 @@
     [Inject]
     IHomeHttpRepository HomeRepo { get; set; }
 
+    // @ref components
     UploadImage uploadImages;
     UploadImage uploadImage;
-    string tag;
 
+    string tag = "";
     List<string> Tags { get; set; } = new List<string>();
     HomeDetailed homeDetailed { get; set; } = new HomeDetailed();
 
-    string error { get; set; }
+    string error { get; set; } = "";
 
     void TagInput()
     {
-        if (!Tags.Contains(tag))
+        if (!string.IsNullOrEmpty(tag) && !Tags.Contains(tag))
         {
             Tags.Add(tag);
             tag = "";
@@ -89,7 +90,7 @@
 
     async Task OnSubmit()
     {
-        error = null;
+        error = "";
         try
         {
             homeDetailed.Screens = uploadImages.FilesBase64;

@@ -100,21 +100,24 @@
 </EditForm>
 
 @code {
+    // @ref omponents
     private UploadImage uploadImages;
     private UploadImage uploadImage;
-    private string error { get; set; }
-    private string tag { get; set; }
-    private List<string> Tags { get; set; } = new List<string>();
-    private HomeDetailed _home = new HomeDetailed();
     private SuccessNotification _notification;
     private ErrorNotification _errorNotification;
+
+    private string error { get; set; } = "";
+    private string tag { get; set; } = "";
+    private List<string> Tags { get; set; } = new List<string>();
+
+    private HomeDetailed _home = new HomeDetailed();
 
     [Inject]
     public IHomeHttpRepository HomeRepo { get; set; }
 
     private async Task Create()
     {
-        error = null;
+        error = "";
         try
         {
             _home.Screens = uploadImages.FilesBase64;
@@ -134,7 +137,7 @@
 
     void TagInput()
     {
-        if (!Tags.Contains(tag))
+        if (!string.IsNullOrEmpty(tag) && !Tags.Contains(tag))
         {
             Tags.Add(tag);
             tag = "";
