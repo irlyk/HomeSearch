@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  homesearch.server:
+    image: ${DOCKER_REGISTRY-}homesearch
+    build:
+      context: .
+      dockerfile: HomeSearch/Server/Dockerfile
+
+  mongo_db:
+    container_name: mongo_db
+    image: mongo:latest
+    restart: always

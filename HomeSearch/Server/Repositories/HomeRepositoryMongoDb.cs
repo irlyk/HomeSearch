@@ -17,7 +17,7 @@ namespace HomeSearch.Server.Repositories
 		{
 			var mongoClient = new MongoClient(config.ConnectionString);
 
-			var mongoDatabase = mongoClient.GetDatabase(config.Name);
+			var mongoDatabase = mongoClient.GetDatabase(config.DataBaseName);
 
 			_homeCollection = mongoDatabase.GetCollection<Home>("Homes");
 			_homeArchiveCollection = mongoDatabase.GetCollection<Home>("HomesArchive");

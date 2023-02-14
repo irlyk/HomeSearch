@@ -4,6 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <DockerComposeProjectPath>../../docker-compose.dcproj</DockerComposeProjectPath>
+    <UserSecretsId>7d7ab946-45aa-4d86-83c3-db4da6c6b651</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,24 +24,11 @@
 
 
   <ItemGroup>
-    <None Remove="Models\" />
     <None Remove="AspNetCore.Identity.MongoDbCore" />
-    <None Remove="Resources\" />
-    <None Remove="Settings\" />
     <None Remove="Services\Extensions\" />
-    <None Remove="Models\DataStructures\" />
-    <None Remove="Models\ModelExtensions\" />
     <None Remove="Newtonsoft.Json" />
     <None Remove="System.Linq.Dynamic.Core" />
     <None Remove="Microsoft.EntityFrameworkCore" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-    <Folder Include="Resources\" />
-    <Folder Include="Settings\" />
-    <Folder Include="Repositories\Extensions\" />
-    <Folder Include="Models\DataStructures\" />
-    <Folder Include="Models\ModelExtensions\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Resources\Resources.resx">

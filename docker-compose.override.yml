@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  mongo_db:
+    container_name: mongo_db
+    ports:
+      - 27017:27017
+    volumes:
+      - ./database:/data/db
+
+  homesearch.server:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_URLS=http://+:80
+      - MongoDbConfig:ConnectionString=mongodb://mongo_db:27017
+    ports:
+      - "80"
+      # - "443"
+    volumes:
+      - ~/.aspnet/https:/root/.aspnet/https:ro
+      - ~/.aspnet/dev-certs:/root/.aspnet/dev-certs:ro
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+    depends_on:
+      - mongo_db
+

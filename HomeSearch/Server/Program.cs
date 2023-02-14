@@ -14,7 +14,7 @@ builder.Services.AddSingleton<MongoDbConfig>(mongoDbSettings);
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddMongoDbStores<ApplicationUser, ApplicationRole, Guid>
     (
-        mongoDbSettings.ConnectionString, mongoDbSettings.Name
+        mongoDbSettings.ConnectionString, mongoDbSettings.DataBaseName
     );
 
 builder.Services.AddScoped<IHomeRepository, HomeRepositoryMongoDb>();
@@ -39,6 +39,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
+
+    Console.WriteLine("ConnectionString:" + mongoDbSettings.ConnectionString);
 }
 else
 {
